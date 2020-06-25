@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <properties>
+    <property key="pcodeInjectLibraryClass" value="ghidra.nvidia.cuda.inject.PcodeInjectLibraryCuda"/>
+  </properties>
+  <programcounter register="PC"/>
+  
+  <default_memory_blocks>
+    <memory_block name="LOW_RAM" start_address="0x0000" length="0x0100" initialized="false"/>
+  </default_memory_blocks>
+</processor_spec>

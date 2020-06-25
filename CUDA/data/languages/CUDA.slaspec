@@ -1,0 +1,226 @@
+# sleigh specification file for NVIDIA CUDA SASS (SM30 Kepler architecture)
+
+define endian=little;
+define alignment=8;
+
+define space RAM		type=ram_space		size=8  default;
+define space params		type=ram_space		size=8;
+define space constants	type=ram_space		size=8;
+define space register	type=register_space	size=8;
+
+define register offset=0x0 size=4	[R0 R1 R2 R3 R4 R5 R6 R7];
+define register offset=0x0 size=8	[R01 R23 R45 R67];
+define register offset=0x20 size=8	[SP PC];
+define register offset=0x30 size=1	[P0 P1 P2 P3 P4 P5 P6];
+define register offset=0x38 size=8	[LOCKEDREG];
+define register offset=0x40 size=4	[SR_TID SR_TID.X SR_TID.Y SR_TID.Z SR_CTAID SR_CTAID.X SR_CTAID.Y SR_CTAID.Z];
+
+define token tok (64)
+  op2		= (0,4)
+  par3		= (5,9)
+  cond		= (10,12)
+  excl_flag	= (13,13)
+  dest		= (14,16)
+  res		= (17,19)
+  par2		= (20,22)
+  unk1		= (23,25)
+  par1_3	= (26,31)
+  par1_2	= (32,41)
+  par1_1	= (42,45)
+  c2_flag	= (46,46)
+  c1_flag	= (47,47)
+  CC_flag	= (48,48)
+  mod2		= (49,54)
+  vec2_flag	= (55,55)
+  vec1_flag	= (56,56)
+  mod1		= (57,57)
+  op1		= (58,63)
+
+  skip		= (0,2)
+  s2_flag	= (5,5)
+  hi_flag	= (6,6)
+  s1_flag	= (7,7)
+  par1_23	= (26,41)
+  par1_reg	= (26,28)
+  par0		= (47,49)
+  num3		= (26,45)
+  num2		= (26,49) signed
+  num1		= (26,57) signed
+  logic		= (55,57)
+;
+
+attach variables [dest]		[R0 R1 R2 R3 R4 R5 R6 R7];
+attach variables [par0]		[R0 R1 R2 R3 R4 R5 R6 R7];
+attach variables [par1_reg]	[R0 R1 R2 R3 R4 R5 R6 R7];
+attach variables [par2]		[R0 R1 R2 R3 R4 R5 R6 R7];
+attach variables [res]		[P0 P1 P2 P3 P4 P5 P6 _];
+
+p1:	par1_1 is par1_1 { export *[const]:8 par1_1; }
+p2:	par1_23 is par1_23 { export *[const]:8 par1_23; }
+
+c:	"c"[p1][p2] is par1_1 = 0 & p1 & p2 & (par1_2=0x0 | par1_2=0x1 | par1_2=0x2 | par1_2=0x3 | par1_2=0x4)
+{ local tmp:8 = *[constants]:8 p2; export tmp; }
+c:	"c"[p1][p2] is par1_1 = 0 & p1 & p2 { local tmp:8 = *[params]:8 p2; export tmp; }
+
+src: c is (c2_flag=0x1 | c1_flag=0x1) & c { export c; }
+
+special: SR_TID		is par1_3=0x20 & SR_TID { export SR_TID; }
+special: SR_TID.X	is par1_3=0x21 & SR_TID.X { export SR_TID.X; }
+special: SR_TID.Y	is par1_3=0x22 & SR_TID.Y { export SR_TID.Y; }
+special: SR_TID.Z	is par1_3=0x23 & SR_TID.Z { export SR_TID.Z; }
+special: SR_CTAID	is par1_3=0x24 & SR_CTAID { export SR_CTAID; }
+special: SR_CTAID.X	is par1_3=0x25 & SR_CTAID.X { export SR_CTAID.X; }
+special: SR_CTAID.Y	is par1_3=0x26 & SR_CTAID.Y { export SR_CTAID.Y; }
+special: SR_CTAID.Z	is par1_3=0x27 & SR_CTAID.Z { export SR_CTAID.Z; }
+
+exp: par3	is par3 { tmp:8 = 1 << par3; export tmp; }
+
+signstr: ""			is s1_flag=0x1 & s2_flag=0x1 {}
+signstr: ".S32.U32"	is s1_flag=0x1 & s2_flag=0x0 {}
+signstr: ".U32.S32"	is s1_flag=0x0 & s2_flag=0x1 {}
+signstr: ".U32.U32"	is s1_flag=0x0 & s2_flag=0x0 {}
+
+vecstr: ""		is vec1_flag=0x0 & vec2_flag=0x0 {}
+vecstr: ".X"	is vec1_flag=0x0 & vec2_flag=0x1 {}
+vecstr: ".Y"	is vec1_flag=0x1 & vec2_flag=0x0 {}
+vecstr: ".Z"	is vec1_flag=0x1 & vec2_flag=0x1 {}
+
+condreg: P0	is cond=0x0 & P0 { export P0; }
+condreg: P1	is cond=0x1 & P1 { export P1; }
+condreg: P2	is cond=0x2 & P2 { export P2; }
+condreg: P3	is cond=0x3 & P3 { export P3; }
+condreg: P4	is cond=0x4 & P4 { export P4; }
+condreg: P5	is cond=0x5 & P5 { export P5; }
+condreg: P6	is cond=0x6 & P6 { export P6; }
+
+predication: ""				is cond=0x7 & excl_flag=0x0 {}
+predication: ":!"			is cond=0x7 & excl_flag=0x1 {}
+predication: ":@"^condreg	is excl_flag=0x0 & condreg { if !condreg goto inst_next; }
+predication: ":@!"^condreg	is excl_flag=0x1 & condreg { if condreg goto inst_next; }
+
+condition: ".GE"		is logic=0x6 & s2_flag=0x1 & par2 & num3 { result:1 = par2 s>= num3; export result; }
+condition: ".GE.U32"	is logic=0x6 & s2_flag=0x0 & par2 & num3 { result:1 = par2 >= num3; export result; }
+condition: ".LT"		is logic=0x1 & s2_flag=0x1 & par2 & num3 { result:1 = par2 s<= num3; export result; }
+condition: ".LT.U32"	is logic=0x1 & s2_flag=0x0 & par2 & num3 { result:1 = par2 <= num3; export result; }
+
+# DO NOT DELETE THIS DUMMY INSTRUCTION
+:INIT is op1=0x8 & unk1=0x5 & par2=0x0 & par3=0x18 & op2=0x7
+{
+	LOCKEDREG = 0:8;
+	tmp:8 = cpool(0,0);
+	SR_TID = zext(*:4 tmp);
+	tmp = cpool(0,1);
+	SR_TID.X = zext(*:4 tmp);
+	tmp = cpool(0,2);
+	SR_TID.Y = zext(*:4 tmp);
+	tmp = cpool(0,3);
+	SR_TID.Z = zext(*:4 tmp);
+	tmp = cpool(0,4);
+	SR_CTAID = zext(*:4 tmp);
+	tmp = cpool(0,5);
+	SR_CTAID.X = zext(*:4 tmp);
+	tmp = cpool(0,6);
+	SR_CTAID.Y = zext(*:4 tmp);
+	tmp = cpool(0,7);
+	SR_CTAID.Z = zext(*:4 tmp);
+}
+
+# some predefined SKIP and NOP instructions
+:UNK is op1=0x8 & skip=0x7 {}
+
+# "CC" instructions store their result in both current dest register and next register at once for best decompiler output
+# no implementation for "HI" instructions required, as they're consumed by "CC", may be confused by non-standard code though
+
+:BRA^predication addr is op1=0x10 & num2 & predication [ addr = inst_start + num2 + 8; ]
+{
+	build predication;
+	tmp:8 = addr;
+	goto [tmp];
+}
+
+:EXIT^predication is op1=0x20 & predication
+{
+	build predication;
+	return [0:1];
+}
+
+:FMUL^predication dest,par2,src is op1=0x16 & dest & par2 & src & predication
+{
+	build predication;
+	dest = par2 f* (src:4);
+}
+
+:I2F^predication dest,par1_reg is op1=0x6 & op2=0x4 & dest & par1_reg & predication
+{
+	build predication;
+	dest = int2float(par1_reg);
+}
+
+:IADD32I^predication dest,par2,num1 is op1=0x2 & dest & par2 & num1 & predication
+{
+	build predication;
+	dest = par2 + num1;
+}
+
+:IMAD^predication dest,par2,src,par0 is op1=0x8 & hi_flag=0x0 & dest & par2 & par0 & src & predication
+{
+	build predication;
+	dest = par2 * (src:4) + par0;
+}
+:IMAD^signstr^".HI"vecstr^predication dest,par2,par0,src is op1=0x8 & hi_flag=0x1 & signstr & vecstr & dest & par2 & par0 & src & predication
+{
+	build predication;
+	LOCKEDREG = 0:8;
+}
+
+:ISCADD^predication dest".CC",par2,src,exp is op1=0x10 & CC_flag=0x1 & dest & par2 & src & exp & predication
+{
+	build predication;
+	tmp:8 = src + zext(par2) * exp;
+	addr:8 = &dest;
+	*[register]:8 addr = tmp;
+	tmp = &dest;
+	LOCKEDREG = tmp + 4;
+}
+
+:ISETP^condition^predication res,par2,num3 is op1=0x6 & op2=0x3 & res & par2 & num3 & condition & predication
+{
+	build condition;
+	res = condition;
+}
+
+:LD.E^predication dest,[par2] is op1=0x21 & dest & par2 & predication
+{
+	build predication;
+	addr:8 = &par2;
+	tmp:8 = *[register]:8 addr;
+	dest = *:4 tmp;
+}
+
+:MOV^predication dest,src is op1=0xA & dest & src & predication
+{
+	build predication;
+	dest = src:4;
+}
+
+:MOV32I^predication dest,num1 is op1=0x6 & op2=0x2 & dest & num1 & predication
+{
+	build predication;
+	tmp:8 = &dest;
+	if (LOCKEDREG == tmp) goto inst_next;
+	dest = num1;
+}
+
+:S2R^predication dest,special is op1=0xB & dest & special & predication
+{
+	build predication;
+	dest = special;
+}
+
+:ST.E^predication [par2],dest is op1=0x25 & dest & par2 & predication
+{
+	build predication;
+	addr:8 = &par2;
+	tmp:8 = *[register]:8 addr;
+	*:4 tmp = dest;
+}

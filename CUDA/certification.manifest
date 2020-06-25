@@ -1,0 +1,9 @@
+##VERSION: 2.0
+Module.manifest||GHIDRA||||END|
+build.gradle||GHIDRA||||END|
+data/languages/CUDA.cspec||GHIDRA||||END|
+data/languages/CUDA.ldefs||GHIDRA||||END|
+data/languages/CUDA.opinion||GHIDRA||||END|
+data/languages/CUDA.pspec||GHIDRA||||END|
+data/languages/CUDA.slaspec||GHIDRA||||END|
+data/manuals/CUDA.idx||GHIDRA||||END|

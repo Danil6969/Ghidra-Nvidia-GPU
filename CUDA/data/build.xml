@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  + Compile sleigh languages within this source language module via Eclipse or
+  + a command shell.
+  + 
+  +   * Eclipse: right-click on this file and choose menu item "Run As->Ant Build"
+  +
+  +   * From command line (requires ant install)
+  +        - cd to data directory containing this file
+  +        - run ant
+  +
+  + Sleigh compiler options are read from build/data/sleighArgs.txt which is 
+  + updated by "gradle prepdev" based upon specification within module's build.gradle.
+  -->
+                                     
+<project name="privateBuildDeveloper" default="sleigh-compile">
+	
+	<property name="sleigh.compile.class" value="ghidra.pcodeCPort.slgh_compile.SleighCompile"/>
+
+	<target name="sleigh-compile">
+	    
+	    <path id="sleigh.class.path">
+			<pathelement path="C:\FTB\Ghidra\Ghidra\Framework\SoftwareModeling\build\classes\java\main:C:\FTB\Ghidra\Ghidra\Framework\SoftwareModeling\build\resources\main:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.antlr\antlr\3.5.2\c4a65c950bfc3e7d04309c515b2177c00baf7764\antlr-3.5.2.jar:C:\FTB\Ghidra\Ghidra\Framework\Project\build\libs\Project.jar:C:\FTB\Ghidra\Ghidra\Framework\FileSystem\build\libs\FileSystem.jar:C:\FTB\Ghidra\Ghidra\Framework\DB\build\libs\DB.jar:C:\FTB\Ghidra\Ghidra\Framework\Graph\build\libs\Graph.jar:C:\FTB\Ghidra\Ghidra\Framework\Docking\build\libs\Docking.jar:C:\FTB\Ghidra\Ghidra\Framework\Generic\build\libs\Generic.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\msv\msv\20050913\3fc5ca9708a8e7a219001da0bc3870d0a2d51c2d\msv-20050913.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\msv\xsdlib\20050913\836b85d70c54589aeef2ea810232ab192137ea84\xsdlib-20050913.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.antlr\ST4\4.0.8\a1c55e974f8a94d78e2348fa6ff63f4fa1fae64\ST4-4.0.8.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.antlr\antlr-runtime\3.5.2\cd9cd41361c155f3af0f653009dcecb08d8b4afd\antlr-runtime-3.5.2.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\msv\isorelax\20050913\b21859c352bd959ea22d06b2fe8c93b2e24531b9\isorelax-20050913.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\msv\relaxngDatatype\20050913\b117e0f9182c6cc094e833489bcdddadfd414090\relaxngDatatype-20050913.jar:C:\FTB\Ghidra\Ghidra\Framework\Utility\build\libs\Utility.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\cglib\cglib-nodep\2.2\59afed7ab65e7ec6585d5bc60556c3cbd203532b\cglib-nodep-2.2.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\net.sf.jung\jung-visualization\2.1.1\40488654daea1f57e0790e40153be19a307943dd\jung-visualization-2.1.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\net.sf.jung\jung-algorithms\2.1.1\632bd89a61a6c1ca7ed3505aca0765cff987096e\jung-algorithms-2.1.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\net.sf.jung\jung-graph-impl\2.1.1\8293acb2ab4c00a3939cb99a8751e5d38a4299dc\jung-graph-impl-2.1.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\net.sf.jung\jung-api\2.1.1\e47ee4efdfacce12f0af620747d9d0e44bf2eaa4\jung-api-2.1.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\19.0\6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9\guava-19.0.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.jdom\jdom-legacy\1.1.3\8bdfeb39fa929c35f5e4f0b02d34350db39a1efc\jdom-legacy-1.1.3.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-core\2.12.1\4382e93136c06bfb34ddfa0bb8a9fb4ea2f3df59\log4j-core-2.12.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-api\2.12.1\a55e6d987f50a515c9260b0451b4fa217dc539cb\log4j-api-2.12.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-collections4\4.1\a4cf4688fe1c7e3a63aa636cc96d013af537768e\commons-collections4-4.1.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.9\122c7cee69b53ed4a7681c03d4ee4c0e2765da5\commons-lang3-3.9.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.6\815893df5f31da2ece4040fe0a12fd44b577afaf\commons-io-2.6.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\ch.ethz.ganymed\ganymed-ssh2\262\7761dc665d0f6993dc846d914214fb93291e2bdf\ganymed-ssh2-262.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-compress\1.19\7e65777fb451ddab6a9c054beb879e521b7eab78\commons-compress-1.19.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\net.java.dev.timingframework\timingframework\1.0\2c12a328bfd82ddb0c4389e915229ea3df1740b8\timingframework-1.0.jar:C:\Users\danil\.gradle\caches\modules-2\files-2.1\javax.help\javahelp\2.0.05\ca70822c47a67fc3a11670270567c2d01566dae1\javahelp-2.0.05.jar"/>
+		</path>
+			
+		<available classname="${sleigh.compile.class}" classpathref="sleigh.class.path" property="sleigh.compile.exists"/>
+			
+		<fail unless="sleigh.compile.exists" />
+		
+		<!--
+			NOTE: sleighArgs.txt contains sleigh compile which are established by build.gradle
+			for the corresponding language module and output to this file with the execution of
+			the gradle prepDev or distribution build tasks.  The '-a' and '-i' options 
+			should not be specified by build.gradle.  Other sleigh compile options may be specified
+			within build.gradle by inclusion of the sleighCompile args following all
+			'apply' statements. Example:
+			
+				sleighCompile {
+					args '-l'
+				}
+				
+			Available options may be determined by executing the sleigh script.
+			(see Ghidra/RuntimeScripts/Linux/support, Ghidra/RuntimeScripts/Windows/support)
+		-->
+		
+		<java classname="${sleigh.compile.class}"
+			classpathref="sleigh.class.path"
+			fork="true"
+			failonerror="true">
+			<jvmarg value="-Xmx2048M"/>
+			<arg value="-DBaseDir=../../../../../../" />  <!-- repos root directory -->
+			<arg value="-i"/>
+			<arg value="../build/tmp/sleighArgs.txt"/>
+			<arg value="-a"/>
+			<arg value="./languages"/>
+		</java>
+		
+ 	</target>
+
+</project>

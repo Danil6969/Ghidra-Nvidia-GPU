@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  
+  <language processor="CUDA"
+            endian="little"
+            size="64"
+            variant="default"
+            version="1.0"
+            slafile="CUDA.sla"
+            processorspec="CUDA.pspec"
+            manualindexfile="../manuals/CUDA.idx"
+            id="cuda:LE:64:default">
+    <description>NVIDIA CUDA SASS (SM30 Kepler architecture)</description>
+    <compiler name="default" spec="CUDA.cspec" id="default"/>
+  </language>
+  
+</language_definitions>
