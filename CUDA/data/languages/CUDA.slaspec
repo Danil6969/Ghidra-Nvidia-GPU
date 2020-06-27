@@ -157,8 +157,7 @@ condition: ".LT.U32"	is logic=0x1 & s2_flag=0x0 & par2 & num3 { result:1 = par2 
 	tmp:8 = src + zext(par2) * exp;
 	addr:8 = &dest;
 	*[register]:8 addr = tmp;
-	tmp = &dest;
-	LOCKEDREG = tmp + 4;
+	LOCKEDREG = addr + 4;
 }
 
 :ISETP^condition^predication res,par2,num3 is op1=0x6 & op2=0x3 & res & par2 & num3 & condition & predication
