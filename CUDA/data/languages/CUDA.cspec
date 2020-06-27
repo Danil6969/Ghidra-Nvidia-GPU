@@ -15,6 +15,11 @@
       </input>
       <output>
       </output>
+      <pcode inject="uponentry">
+        <body>
+          LOCKEDREG = 0:8;
+        </body>
+      </pcode>
     </prototype>
   </default_proto>
 </compiler_spec>
