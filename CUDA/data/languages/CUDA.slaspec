@@ -41,7 +41,7 @@ define token tok (64)
   hi_flag	= (6,6)
   s1_flag	= (7,7)
   par1_23	= (26,41)
-  par1_reg	= (26,28)
+  par1		= (26,28)
   par0		= (47,49)
   num3		= (26,45)
   num2		= (26,49) signed
@@ -51,7 +51,7 @@ define token tok (64)
 
 attach variables [dest]		[R0 R1 R2 R3 R4 R5 R6 R7];
 attach variables [par0]		[R0 R1 R2 R3 R4 R5 R6 R7];
-attach variables [par1_reg]	[R0 R1 R2 R3 R4 R5 R6 R7];
+attach variables [par1]		[R0 R1 R2 R3 R4 R5 R6 R7];
 attach variables [par2]		[R0 R1 R2 R3 R4 R5 R6 R7];
 attach variables [res]		[P0 P1 P2 P3 P4 P5 P6 _];
 
@@ -64,14 +64,14 @@ c:	"c"[p1][p2] is par1_1 = 0 & p1 & p2 { local tmp:8 = *[params]:8 p2; export tm
 
 src: c is (c2_flag=0x1 | c1_flag=0x1) & c { export c; }
 
-special: SR_TID		is par1_3=0x20 & SR_TID { export SR_TID; }
-special: SR_TID.X	is par1_3=0x21 & SR_TID.X { export SR_TID.X; }
-special: SR_TID.Y	is par1_3=0x22 & SR_TID.Y { export SR_TID.Y; }
-special: SR_TID.Z	is par1_3=0x23 & SR_TID.Z { export SR_TID.Z; }
-special: SR_CTAID	is par1_3=0x24 & SR_CTAID { export SR_CTAID; }
-special: SR_CTAID.X	is par1_3=0x25 & SR_CTAID.X { export SR_CTAID.X; }
-special: SR_CTAID.Y	is par1_3=0x26 & SR_CTAID.Y { export SR_CTAID.Y; }
-special: SR_CTAID.Z	is par1_3=0x27 & SR_CTAID.Z { export SR_CTAID.Z; }
+special: SR_TID		is par1_3=0x20 & SR_TID		{ tmp:8 = cpool(0,0); SR_TID	 = *:4 tmp; export SR_TID;		}
+special: SR_TID.X	is par1_3=0x21 & SR_TID.X	{ tmp:8 = cpool(0,1); SR_TID.X	 = *:4 tmp; export SR_TID.X;	}
+special: SR_TID.Y	is par1_3=0x22 & SR_TID.Y	{ tmp:8 = cpool(0,2); SR_TID.Y	 = *:4 tmp; export SR_TID.Y;	}
+special: SR_TID.Z	is par1_3=0x23 & SR_TID.Z	{ tmp:8 = cpool(0,3); SR_TID.Z	 = *:4 tmp; export SR_TID.Z;	}
+special: SR_CTAID	is par1_3=0x24 & SR_CTAID	{ tmp:8 = cpool(0,4); SR_CTAID	 = *:4 tmp; export SR_CTAID;	}
+special: SR_CTAID.X	is par1_3=0x25 & SR_CTAID.X	{ tmp:8 = cpool(0,5); SR_CTAID.X = *:4 tmp; export SR_CTAID.X;	}
+special: SR_CTAID.Y	is par1_3=0x26 & SR_CTAID.Y	{ tmp:8 = cpool(0,6); SR_CTAID.Y = *:4 tmp; export SR_CTAID.Y;	}
+special: SR_CTAID.Z	is par1_3=0x27 & SR_CTAID.Z	{ tmp:8 = cpool(0,7); SR_CTAID.Y = *:4 tmp; export SR_CTAID.Z;	}
 
 exp: par3	is par3 { tmp:8 = 1 << par3; export tmp; }
 
@@ -103,28 +103,6 @@ condition: ".GE.U32"	is logic=0x6 & s2_flag=0x0 & par2 & num3 { result:1 = par2 
 condition: ".LT"		is logic=0x1 & s2_flag=0x1 & par2 & num3 { result:1 = par2 s<= num3; export result; }
 condition: ".LT.U32"	is logic=0x1 & s2_flag=0x0 & par2 & num3 { result:1 = par2 <= num3; export result; }
 
-# DO NOT DELETE THIS DUMMY INSTRUCTION
-:INIT is op1=0x8 & unk1=0x5 & par2=0x0 & par3=0x18 & op2=0x7
-{
-	LOCKEDREG = 0:8;
-	tmp:8 = cpool(0,0);
-	SR_TID = zext(*:4 tmp);
-	tmp = cpool(0,1);
-	SR_TID.X = zext(*:4 tmp);
-	tmp = cpool(0,2);
-	SR_TID.Y = zext(*:4 tmp);
-	tmp = cpool(0,3);
-	SR_TID.Z = zext(*:4 tmp);
-	tmp = cpool(0,4);
-	SR_CTAID = zext(*:4 tmp);
-	tmp = cpool(0,5);
-	SR_CTAID.X = zext(*:4 tmp);
-	tmp = cpool(0,6);
-	SR_CTAID.Y = zext(*:4 tmp);
-	tmp = cpool(0,7);
-	SR_CTAID.Z = zext(*:4 tmp);
-}
-
 # some predefined SKIP and NOP instructions
 :UNK is op1=0x8 & skip=0x7 {}
 
@@ -150,10 +128,10 @@ condition: ".LT.U32"	is logic=0x1 & s2_flag=0x0 & par2 & num3 { result:1 = par2 
 	dest = par2 f* (src:4);
 }
 
-:I2F^predication dest,par1_reg is op1=0x6 & op2=0x4 & dest & par1_reg & predication
+:I2F^predication dest,par1 is op1=0x6 & op2=0x4 & dest & par1 & predication
 {
 	build predication;
-	dest = int2float(par1_reg);
+	dest = int2float(par1);
 }
 
 :IADD32I^predication dest,par2,num1 is op1=0x2 & dest & par2 & num1 & predication
